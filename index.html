@@ -125,7 +125,7 @@
                 let location = L.latLng(layer._bounds._northEast.lat, mid[1]);
 
                 const tooltip = L.tooltip().setContent(
-                    `<b>${decodeURIComponent(escape(layer.feature.properties.name))} ${display == "county" ? "County" : ""}</b><br>${layer.feature.properties.cases} cases`
+                    `<b>${layer.feature.properties.name} ${display == "county" ? "County" : ""}</b><br>${layer.feature.properties.cases} cases`
                 );
                 layer.bindTooltip(tooltip, {
                     direction: 'top',
