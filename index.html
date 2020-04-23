@@ -6,8 +6,8 @@
     <meta charset="utf-8">
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Map of US showing COVID cases by state and county"/>
-    <meta name="keywords" content="COVID-19, covid, coronavirus, tracker, map, corona, us, usa"/>
+    <meta name="description" content="Map of US showing COVID cases by state and county" />
+    <meta name="keywords" content="COVID-19, covid, coronavirus, tracker, map, corona, us, usa" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
         integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
         crossorigin="" />
@@ -119,14 +119,16 @@
 
             function highlightFeature(e) {
                 const layer = e.target;
-                const location = L.latLng(layer._bounds._northEast.lat, (layer._bounds._northEast.lng + layer._bounds
-                    ._southWest.lng) / 2);
+
+                const mid = midpoint(layer._bounds._northEast.lat, layer._bounds._northEast.lng, layer._bounds._southWest.lat, layer._bounds._southWest.lng)
+
+                let location = L.latLng(layer._bounds._northEast.lat, mid[1]);
 
                 const tooltip = L.tooltip().setContent(
-                    `<b>${layer.feature.properties.name} ${display == "county" ? "County" : ""}</b><br>${layer.feature.properties.cases} cases`
+                    `<b>${decodeURIComponent(escape(layer.feature.properties.name))} ${display == "county" ? "County" : ""}</b><br>${layer.feature.properties.cases} cases`
                 );
                 layer.bindTooltip(tooltip, {
-                    direction: 'top'
+                    direction: 'top',
                 }).openTooltip(location);
 
                 layer.setStyle({
@@ -140,6 +142,31 @@
                 }
 
             }
+
+            function midpoint(lat1, lng1, lat2, lng2) {
+                lat1 = deg2rad(lat1);
+                lng1 = deg2rad(lng1);
+                lat2 = deg2rad(lat2);
+                lng2 = deg2rad(lng2);
+
+                dlng = lng2 - lng1;
+                Bx = Math.cos(lat2) * Math.cos(dlng);
+                By = Math.cos(lat2) * Math.sin(dlng);
+                lat3 = Math.atan2(Math.sin(lat1) + Math.sin(lat2),
+                    Math.sqrt((Math.cos(lat1) + Bx) * (Math.cos(lat1) + Bx) + By * By));
+                lng3 = lng1 + Math.atan2(By, (Math.cos(lat1) + Bx));
+
+                lng3 = (lng3 * 180) / Math.PI;
+                if (lng3 > 180) {
+                    lng3 -= 360;
+                }
+
+                return [(lat3 * 180) / Math.PI, lng3];
+            }
+
+            function deg2rad(degrees) {
+                return degrees * Math.PI / 180;
+            };
 
             var geojson;
 
