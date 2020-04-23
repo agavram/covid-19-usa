@@ -122,6 +122,7 @@
                 const layer = e.target;
                 const location = L.latLng(layer._bounds._northEast.lat, (layer._bounds._northEast.lng + layer._bounds
                     ._southWest.lng) / 2);
+
                 const tooltip = L.tooltip().setContent(
                     `<b>${layer.feature.properties.name} ${display == "county" ? "County" : ""}</b><br>${layer.feature.properties.cases} cases`
                 );
