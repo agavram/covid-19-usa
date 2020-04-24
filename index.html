@@ -32,25 +32,30 @@
                     and updates twice per day.</p>
             </div>
         </div>
-        <script type="text/javascript" src="index.js" ></script>
+        <script type="text/javascript" src="index.js"></script>
         <script type="text/javascript">
-            let display = "county";
-
-            var map = L.map("map").setView([37.8, -96], 4);
+            let display = "state";
+            var map = L.map("map").setView([39.8283, -98.5795], 5);
 
             L.tileLayer(
-                "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png", {
-                    maxZoom: 9,
+                "https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png", {
+                    maxZoom: 8,
                     minZoom: 4,
-                    default: 9,
                     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
                         '&copy; <a href="https://www.stadiamaps.com/">Stadia Maps</a>, ' +
-                        '&copy; <a href="https://openmaptiles.org/"> OpenMapTiles </a>',
-                    id: "mapbox.light"
+                        '&copy; <a href="https://openmaptiles.org/"> OpenMapTiles </a>' + 
+                        '&copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
                 }
             ).addTo(map);
 
-            map.setView([39.8283, -98.5795], zoom = 4.5)
+            map.createPane('labels');
+            map.getPane('labels').style.zIndex = 500;
+
+            var positronLabels = L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+                maxZoom: 8,
+                minZoom: 4,
+                pane: 'labels'
+            }).addTo(map);
 
             function getColor(d) {
                 if (display == 'county') {
@@ -101,6 +106,7 @@
                     `<b>${layer.feature.properties.name} ${display == "county" ? "County" : ""}</b><br>${layer.feature.properties.cases} cases`
                 );
                 layer.bindTooltip(tooltip, {
+                    className: 'tooltip',
                     direction: 'top',
                 }).openTooltip(location);
 
@@ -142,23 +148,6 @@
 
             var geojson;
 
-            function resetHighlight(e) {
-                e.target.unbindTooltip();
-                geojson.resetStyle(e.target);
-            }
-
-            function zoomToFeature(e) {
-                map.fitBounds(e.target.getBounds());
-            }
-
-            function onEachFeature(feature, layer) {
-                layer.on({
-                    mouseover: highlightFeature,
-                    mouseout: resetHighlight,
-                    click: zoomToFeature
-                });
-            }
-
             L.TopoJSON = L.GeoJSON.extend({
                 addData: function (data) {
                     var geojson, key;
@@ -183,6 +172,23 @@
                 style: style,
                 onEachFeature: onEachFeature
             }).addTo(map)
+
+            function resetHighlight(e) {
+                e.target.unbindTooltip();
+                geojson.resetStyle(e.target);
+            }
+
+            function zoomToFeature(e) {
+                map.fitBounds(e.target.getBounds());
+            }
+
+            function onEachFeature(feature, layer) {
+                layer.on({
+                    mouseover: highlightFeature,
+                    mouseout: resetHighlight,
+                    click: zoomToFeature
+                });
+            }
 
             async function getGeoData(url) {
                 let response = await fetch(url);
@@ -226,6 +232,8 @@
 
                 legend.addTo(map);
             }
+
+            update();
 
             map.on('zoomend', function (zoom) {
                 if (display == "state" && map.getZoom() > 5) {
