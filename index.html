@@ -24,23 +24,27 @@
             <div class="info leaflet-control">
                 <span id="toggle" class="close" onclick="toggleHelp()">→</span>
                 <h4 class="help">What is this website?</h4>
-                <p class="help">This website shows the cumulative number of COVID-19 cases in the US. Zoom in to see
+                <p class="help">This website shows the <b>active</b> number of COVID-19 cases in the US. Zoom in to see
                     counties.</p>
                 <h4 class="help">Where is the data gathered from?</h4>
-                <p class="help">Data is fetched from the <a href="https://github.com/nytimes/covid-19-data">New York
-                        Times Github</a>
-                    and updates twice per day.</p>
+                <p class="help">Data is fetched from the <a href="https://github.com/nytimes/covid-19-data">2019 Novel
+                        Coronavirus COVID-19 (2019-nCoV) Data Repository by Johns Hopkins CSSE</a>
+                    and updates once a day.</p>
             </div>
         </div>
         <script type="text/javascript" src="index.js"></script>
+        <script type="text/javascript" src="papaparse.min.js"></script>
         <script type="text/javascript">
             let display = "state";
-            var map = L.map("map").setView([39.8283, -98.5795], 5);
+            var map = L.map("map", {
+                preferCanvas: 'true',
+                worldCopyJump: 'true'
+            }).setView([39.8283, -98.5795], 5);
 
             L.tileLayer(
                 "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
                     maxZoom: 8,
-                    minZoom: 4,
+                    minZoom: 3,
                     attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
                         '&copy; <a href="https://www.stadiamaps.com/">Stadia Maps</a>, ' +
                         '&copy; <a href="https://openmaptiles.org/"> OpenMapTiles </a>' +
@@ -54,7 +58,7 @@
             var positronLabels = L.tileLayer(
                 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
                     maxZoom: 8,
-                    minZoom: 4,
+                    minZoom: 3,
                     pane: 'labels'
                 }).addTo(map);
 
@@ -85,12 +89,12 @@
             function popUp(e) {
                 const layer = e.target;
                 const tooltip = L.tooltip().setContent(
-                        `<b>${layer.options.location}</b><br>${layer.options.cases} cases`
-                    );
-                    layer.bindTooltip(tooltip, {
-                        className: 'tooltip',
-                        direction: 'top',
-                    }).openTooltip();
+                    `<b>${layer.options.location}</b><br>${layer.options.cases} cases`
+                );
+                layer.bindTooltip(tooltip, {
+                    className: 'tooltip',
+                    direction: 'top',
+                }).openTooltip();
             }
 
             function zoom(e) {
@@ -102,32 +106,38 @@
                 request.open("GET", '04-24-2020.csv', false);
                 request.send(null);
 
-                var csvData = new Array();
-                var jsonObject = request.responseText.split(/\r?\n|\r/);
-                for (var i = 0; i < jsonObject.length; i++) {
-                    csvData.push(jsonObject[i].split(','));
-                }
+                let csvData;
+                var jsonObject = request.responseText;
+
+                csvData = Papa.parse(jsonObject).data
 
                 for (let i = 1; i < csvData.length; i++) {
-                    if (csvData[i][10] <= 0) {
+                    if (csvData[i][10] <= 0 || csvData[i][5] == "") {
                         continue;
                     }
-                    const marker = L.circleMarker([csvData[i][5], csvData[i][6]], {
-                        radius: Math.log(Math.max(csvData[i][10], 5)) * 1.5,
-                        weight: 1.0,
-                        fillOpacity: 0.9,
-                        color: 'white',
-                        fillColor: '#ee4d5a',
-                        cases: csvData[i][10],
-                        location: csvData[i][1] + ", " + csvData[i][2]
-                    })
+                    try {
+                        const marker = L.circleMarker([csvData[i][5], csvData[i][6]], {
+                            radius: Math.log(Math.max(csvData[i][10], 5)) * 2,
+                            weight: 1.0,
+                            fillOpacity: 0.9,
+                            color: 'white',
+                            fillColor: '#ee4d5a',
+                            cases: csvData[i][10],
+                            location: csvData[i][3] == "US" ? csvData[i][1] + ", " + csvData[i][2] : csvData[i][
+                                2
+                            ] != "" ? csvData[i][2] + ", " + csvData[i][3] : csvData[i][3]
+                        })
 
-                    marker.on({
-                        mouseover: popUp,
-                        click: zoom
-                    });
+                        marker.on({
+                            mouseover: popUp,
+                            click: zoom
+                        });
 
-                    marker.addTo(map)
+                        marker.addTo(map)
+                    } catch (error) {
+                        // console.log(csvData[i])
+                    }
+
                 }
             }
         </script>
