@@ -72,6 +72,29 @@ p {
     padding-bottom: 0px;
 }
 
+@media only screen and (max-width: 575px) {
+    .leaflet-left .leaflet-control {
+        margin-bottom: 20px;
+    }
+}
+
+@media only screen and (max-width: 395px) {
+    .leaflet-left .leaflet-control {
+        margin-bottom: 40px;
+    }
+
+    .info {
+        max-width: 75vw;
+    }
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+    background-color: #2E3C43;
+    color: white;
+    border-radius: 3px;
+}
+
 [type="radio"]:checked,
 [type="radio"]:not(:checked) {
     display: none;

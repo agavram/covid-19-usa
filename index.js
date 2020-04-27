@@ -28,7 +28,7 @@ Number.prototype.toFixedNumber = function (digits, base) {
     return Math.round(this * pow) / pow;
 }
 
-function popUp(e) {
+function toolTip(e) {
     const layer = e.target;
     const tooltip = L.tooltip().setContent(
         `<b>${layer.options.location}</b><br>${layer.options.cases} cases`
@@ -36,9 +36,20 @@ function popUp(e) {
     layer.bindTooltip(tooltip, {
         className: 'tooltip',
         direction: 'top',
+        opacity: 1.0
     }).openTooltip();
 }
 
-function zoom(e) {
+function popUp(e) {
     map.setView(e.latlng, map.getZoom());
+    const layer = e.target;
+    layer.unbindTooltip();
+    tooltip = L.popup().setContent(
+        `<b>${layer.options.location}</b><br>${layer.options.cases} cases`
+    );
+    layer.bindPopup(tooltip, {
+        className: 'popup',
+        permanent: true,
+        autoPan: false
+    }).openPopup();
 }
