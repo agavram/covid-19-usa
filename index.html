@@ -114,6 +114,13 @@
                         continue;
                     }
                     try {
+                        let location = "";
+                        for (let j = 1; j < 4; j++) {
+                            if (csvData[i][j] != '')
+                                location += csvData[i][j] + ", ";
+                        }
+                        location = location.substring(0, location.length - 2);
+
                         const marker = L.circleMarker([csvData[i][5], csvData[i][6]], {
                             radius: Math.log(Math.max(csvData[i][10], 5)) * 2,
                             weight: 1.0,
@@ -121,9 +128,7 @@
                             color: 'white',
                             fillColor: '#ee4d5a',
                             cases: csvData[i][10],
-                            location: csvData[i][3] == "US" ? csvData[i][1] + ", " + csvData[i][2] : csvData[i][
-                                2
-                            ] != "" ? csvData[i][2] + ", " + csvData[i][3] : csvData[i][3]
+                            location: location
                         })
 
                         marker.on({
