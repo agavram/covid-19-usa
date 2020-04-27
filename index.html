@@ -24,12 +24,27 @@
             <div class="info leaflet-control">
                 <span id="toggle" class="close" onclick="toggleHelp()">→</span>
                 <h4 class="help">What is this website?</h4>
-                <p class="help">This website shows the <b>active</b> number of COVID-19 cases around the world. Scroll to zoom in and out. Click and drag to move around. </p>
+                <p class="help">This website shows the number of COVID-19 cases around the world. Toggle between active and cumulative in the bottom left. Scroll
+                    to zoom in and out. Click and drag to move around. </p>
                 <h4 class="help">Where is the data gathered from?</h4>
                 <p class="help">Data is fetched from the <a href="https://github.com/CSSEGISandData/COVID-19">2019 Novel
                         Coronavirus COVID-19 (2019-nCoV) Data Repository by Johns Hopkins CSSE</a>
                     and updates once a day.</p>
             </div>
+
+        </div>
+        <div class="leaflet-bottom leaflet-left">
+            <div class="info leaflet-control">
+
+            <p>
+                <input type="radio" id="active" name="radio-group" checked onclick="update('active')">
+                <label for="active">Active Cases</label>
+              </p>
+              <p>
+                <input type="radio" id="cumulative" name="radio-group" onclick="update('cumulative')">
+                <label for="cumulative">Cumulative Cases</label>
+              </p>
+              </div>
         </div>
         <script type="text/javascript" src="index.js"></script>
         <script type="text/javascript" src="papaparse.min.js"></script>
@@ -42,12 +57,12 @@
 
             L.tileLayer(
                 "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
-                    maxZoom: 8,
-                    minZoom: 3,
-                    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-                        '&copy; <a href="https://openmaptiles.org/"> OpenMapTiles </a>' +
-                        '&copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-                }
+                maxZoom: 8,
+                minZoom: 3,
+                attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+                    '&copy; <a href="https://openmaptiles.org/"> OpenMapTiles </a>' +
+                    '&copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+            }
             ).addTo(map);
 
             map.createPane('labels');
@@ -55,22 +70,10 @@
 
             var positronLabels = L.tileLayer(
                 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-                    maxZoom: 8,
-                    minZoom: 3,
-                    pane: 'labels'
-                }).addTo(map);
-
-            function zoomToFeature(e) {
-                map.fitBounds(e.target.getBounds());
-            }
-
-            function onEachFeature(feature, layer) {
-                layer.on({
-                    mouseover: highlightFeature,
-                    mouseout: resetHighlight,
-                    click: zoomToFeature
-                });
-            }
+                maxZoom: 8,
+                minZoom: 3,
+                pane: 'labels'
+            }).addTo(map);
 
             async function getData(url) {
                 let response = await fetch(url);
@@ -78,28 +81,21 @@
                 return data;
             }
 
-            var legend = L.control({
-                position: "bottomright"
-            });
+            let layerGroup = L.layerGroup().addTo(map);
 
             update();
 
-            function popUp(e) {
-                const layer = e.target;
-                const tooltip = L.tooltip().setContent(
-                    `<b>${layer.options.location}</b><br>${layer.options.cases} cases`
-                );
-                layer.bindTooltip(tooltip, {
-                    className: 'tooltip',
-                    direction: 'top',
-                }).openTooltip();
-            }
+            function update(count) {
+                layerGroup.clearLayers();
+                
+                let colIndex;
 
-            function zoom(e) {
-                map.setView(e.latlng, map.getZoom());
-            }
+                if (count == 'active') {
+                    colIndex = 10;
+                } else {
+                    colIndex = 7;
+                }
 
-            function update() {
                 var request = new XMLHttpRequest();
                 request.open("GET", 'data.csv', false);
                 request.send(null);
@@ -110,7 +106,7 @@
                 csvData = Papa.parse(jsonObject).data
 
                 for (let i = 1; i < csvData.length; i++) {
-                    if (csvData[i][10] <= 0 || csvData[i][5] == "") {
+                    if (csvData[i][colIndex] <= 0 || csvData[i][5] == "") {
                         continue;
                     }
                     try {
@@ -122,12 +118,12 @@
                         location = location.substring(0, location.length - 2);
 
                         const marker = L.circleMarker([csvData[i][5], csvData[i][6]], {
-                            radius: Math.log(Math.max(csvData[i][10], 5)) * 2,
+                            radius: Math.log(Math.max(csvData[i][colIndex], 5)) * 2,
                             weight: 1.0,
                             fillOpacity: 0.9,
                             color: 'white',
                             fillColor: '#ee4d5a',
-                            cases: csvData[i][10],
+                            cases: csvData[i][colIndex],
                             location: location
                         })
 
@@ -136,7 +132,7 @@
                             click: zoom
                         });
 
-                        marker.addTo(map)
+                        marker.addTo(layerGroup)
                     } catch (error) {
                         // console.log(csvData[i])
                     }

@@ -27,3 +27,18 @@ Number.prototype.toFixedNumber = function (digits, base) {
     var pow = Math.pow(base || 10, digits);
     return Math.round(this * pow) / pow;
 }
+
+function popUp(e) {
+    const layer = e.target;
+    const tooltip = L.tooltip().setContent(
+        `<b>${layer.options.location}</b><br>${layer.options.cases} cases`
+    );
+    layer.bindTooltip(tooltip, {
+        className: 'tooltip',
+        direction: 'top',
+    }).openTooltip();
+}
+
+function zoom(e) {
+    map.setView(e.latlng, map.getZoom());
+}
