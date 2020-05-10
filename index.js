@@ -55,7 +55,8 @@ function popUp(e) {
 }
 
 function getDate() {
-	const yesterday = new Date();
+	var offset = -16;
+    const yesterday = new Date( new Date().getTime() + offset * 3600 * 1000)
 	yesterday.setDate(yesterday.getDate() - 1);
 	let dd = yesterday.getDate(); 
 	let mm = yesterday.getMonth() + 1; 
