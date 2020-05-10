@@ -31,7 +31,10 @@ Number.prototype.toFixedNumber = function (digits, base) {
 function toolTip(e) {
     const layer = e.target;
     const tooltip = L.tooltip().setContent(
-        `<b>${layer.options.location}</b><br>${layer.options.cases} cases`
+        `<div><b>${layer.options.location}</b></div>
+        <div>Confirmed Cases: <span>${layer.options.confirmedCases}</span></div>
+        <div>Active Cases: <span>${layer.options.activeCases}</span></div>
+        <div>Deaths: <span>${layer.options.deaths}</span></div>`
     );
     layer.bindTooltip(tooltip, {
         className: 'tooltip',
@@ -45,7 +48,10 @@ function popUp(e) {
     const layer = e.target;
     layer.unbindTooltip();
     tooltip = L.popup().setContent(
-        `<b>${layer.options.location}</b><br>${layer.options.cases} cases`
+        `<div><b>${layer.options.location}</b></div>
+        <div>Confirmed Cases: <span>${layer.options.confirmedCases}</span></div>
+        <div>Active Cases: <span>${layer.options.activeCases}</span></div>
+        <div>Deaths: <span>${layer.options.deaths}</span></div>`
     );
     layer.bindPopup(tooltip, {
         className: 'popup',
@@ -55,23 +61,23 @@ function popUp(e) {
 }
 
 function getDate() {
-	var offset = -16;
-    const yesterday = new Date( new Date().getTime() + offset * 3600 * 1000)
-	yesterday.setDate(yesterday.getDate() - 1);
-	let dd = yesterday.getDate(); 
-	let mm = yesterday.getMonth() + 1; 
-	const yyyy = yesterday.getFullYear(); 
-	if (dd < 10) { 
-	    dd = '0' + dd; 
-	} 
-	if (mm < 10) { 
-	    mm = '0' + mm; 
-	} 
-	return `${mm}-${dd}-${yyyy}`
+    var offset = -16;
+    const yesterday = new Date(new Date().getTime() + offset * 3600 * 1000)
+    yesterday.setDate(yesterday.getDate() - 1);
+    let dd = yesterday.getDate();
+    let mm = yesterday.getMonth() + 1;
+    const yyyy = yesterday.getFullYear();
+    if (dd < 10) {
+        dd = '0' + dd;
+    }
+    if (mm < 10) {
+        mm = '0' + mm;
+    }
+    return `${mm}-${dd}-${yyyy}`
 }
 
 const baseUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_daily_reports/';
 
 function getLatestDownloadUrl() {
-	return `${baseUrl}${getDate()}.csv`;
+    return `${baseUrl}${getDate()}.csv`;
 }

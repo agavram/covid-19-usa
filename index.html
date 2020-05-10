@@ -122,7 +122,10 @@
                             fillOpacity: 0.9,
                             color: 'white',
                             fillColor: '#ee4d5a',
-                            cases: csvData[i][colIndex],
+                            activeCases: csvData[i][10],
+                            confirmedCases: csvData[i][7],
+                            deaths: csvData[i][8],
+                            recovered: csvData[i][9],
                             location: location
                         })
 

@@ -95,6 +95,11 @@ p {
     border-radius: 3px;
 }
 
+.leaflet-popup-content>div>span,
+.leaflet-tooltip>div>span {
+    color: #e9737d;
+}
+
 [type="radio"]:checked,
 [type="radio"]:not(:checked) {
     display: none;
