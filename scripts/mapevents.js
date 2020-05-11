@@ -2,8 +2,10 @@ let display = "state";
 
 var map = L.map("map", {
     preferCanvas: 'true',
-    worldCopyJump: 'true'
-}).setView([39.8283, -98.5795], 5);
+    worldCopyJump: 'true',
+    center: [39.8283, -98.5795],
+    zoom: 5
+});
 
 L.tileLayer(
     "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
