@@ -15,7 +15,11 @@
         integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
         crossorigin=""></script>
     <script src="https://unpkg.com/topojson-client@3"></script>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="styles/map.css">
+    <script defer type="text/javascript" src="scripts/papaparse.min.js"></script>
+    <script defer type="text/javascript" src="scripts/utils.js?v=2"></script>
+    <script defer type="text/javascript" src="scripts/mapevents.js?v=2"></script>
+    <script defer type="text/javascript" src="scripts/index.js?v=2"></script>
 </head>
 
 <body>
@@ -32,7 +36,6 @@
                         Coronavirus COVID-19 (2019-nCoV) Data Repository by Johns Hopkins CSSE</a>
                     and updates once a day.</p>
             </div>
-
         </div>
         <div class="leaflet-bottom leaflet-left">
             <div class="info leaflet-control">
@@ -46,102 +49,6 @@
                 </p>
             </div>
         </div>
-        <script type="text/javascript" src="index.js?v=1"></script>
-        <script type="text/javascript" src="papaparse.min.js"></script>
-        <script type="text/javascript">
-            let display = "state";
-            var map = L.map("map", {
-                preferCanvas: 'true',
-                worldCopyJump: 'true'
-            }).setView([39.8283, -98.5795], 5);
-
-            L.tileLayer(
-                "https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
-                maxZoom: 8,
-                minZoom: 3,
-                attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
-                    '&copy; <a href="https://openmaptiles.org/"> OpenMapTiles </a>' +
-                    '&copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
-            }
-            ).addTo(map);
-
-            map.createPane('labels');
-            map.getPane('labels').style.zIndex = 500;
-
-            var positronLabels = L.tileLayer(
-                'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_only_labels/{z}/{x}/{y}{r}.png', {
-                maxZoom: 8,
-                minZoom: 3,
-                pane: 'labels'
-            }).addTo(map);
-
-            async function getData(url) {
-                let response = await fetch(url);
-                console.log(response)
-                return data;
-            }
-
-            let layerGroup = L.layerGroup().addTo(map);
-
-            let csvData;
-
-            Papa.parse(getLatestDownloadUrl(), {
-                download: true,
-                complete: function (results) {
-                    csvData = results.data;
-                    update('active');
-                }
-            });
-
-            function update(count) {
-                layerGroup.clearLayers();
-
-                let colIndex;
-
-                if (count == 'active') {
-                    colIndex = 10;
-                } else {
-                    colIndex = 7;
-                }
-
-                for (let i = 1; i < csvData.length; i++) {
-                    if (csvData[i][colIndex] <= 0 || csvData[i][5] == "") {
-                        continue;
-                    }
-                    try {
-                        let location = "";
-                        for (let j = 1; j < 4; j++) {
-                            if (csvData[i][j] != '')
-                                location += csvData[i][j] + ", ";
-                        }
-                        location = location.substring(0, location.length - 2);
-
-                        const marker = L.circleMarker([csvData[i][5], csvData[i][6]], {
-                            radius: Math.log(Math.max(csvData[i][colIndex], 5)) * 2,
-                            weight: 1.0,
-                            fillOpacity: 0.9,
-                            color: 'white',
-                            fillColor: '#ee4d5a',
-                            activeCases: csvData[i][10],
-                            confirmedCases: csvData[i][7],
-                            deaths: csvData[i][8],
-                            recovered: csvData[i][9],
-                            location: location
-                        })
-
-                        marker.on({
-                            mouseover: toolTip,
-                            click: popUp
-                        });
-
-                        marker.addTo(layerGroup)
-                    } catch (error) {
-                        // console.log(csvData[i])
-                    }
-
-                }
-            }
-        </script>
     </div>
 </body>
 

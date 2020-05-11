@@ -95,9 +95,23 @@ p {
     border-radius: 3px;
 }
 
-.leaflet-popup-content>div>span,
+/* .leaflet-popup-content>div>span,
 .leaflet-tooltip>div>span {
+} */
+
+.space {
+    visibility: hidden;
+}
+
+.red {
     color: #e9737d;
+    position: absolute;
+    right: 0;
+    margin-right: 6px;
+}
+
+.leaflet-popup-content>.red {
+    margin-right: 22px;
 }
 
 [type="radio"]:checked,
