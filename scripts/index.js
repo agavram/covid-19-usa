@@ -1,5 +1,5 @@
 
-import Papa from 'papaparse';
+import { parse } from 'papaparse';
 import { getLatestDownloadUrl } from './utils.js';
 
 let show = localStorage.getItem('show') != null ? localStorage.getItem('show') == 'true' : true;
@@ -10,6 +10,15 @@ document.getElementById('toggle-help').addEventListener('click', () => {
     localStorage.setItem('show', show);
     displayHelp();
 })
+
+document.getElementById('active').addEventListener('click', () => {
+    update('activate')
+})
+
+document.getElementById('cumulative').addEventListener('click', () => {
+    update('cumulative')
+})
+
 
 function displayHelp() {
     let elements = document.getElementsByClassName("help");
@@ -58,7 +67,7 @@ let layerGroup = L.layerGroup().addTo(map);
 
 let csvData;
 
-Papa.parse(getLatestDownloadUrl(), {
+parse(getLatestDownloadUrl(), {
     download: true,
     complete: function (results) {
         csvData = results.data;
