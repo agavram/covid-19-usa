@@ -19,3 +19,5 @@ const baseUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/maste
 function getLatestDownloadUrl() {
     return `${baseUrl}${getDate()}.csv`;
 }
+
+export { getLatestDownloadUrl }
