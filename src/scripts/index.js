@@ -15,8 +15,8 @@ document.getElementById('active').addEventListener('click', () => {
     update('activate')
 })
 
-document.getElementById('cumulative').addEventListener('click', () => {
-    update('cumulative')
+document.getElementById('confirmed').addEventListener('click', () => {
+    update('confirmed')
 })
 
 
@@ -82,7 +82,7 @@ function update(count) {
 
     if (count == 'active') {
         colIndex = 10;
-    } else if (count == 'cumulative') {
+    } else if (count == 'confirmed') {
         colIndex = 7;
     }
 
