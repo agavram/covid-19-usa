@@ -17,6 +17,7 @@ p {
 .close {
     float: right;
     transition: 0.5s;
+    font-size: 18px;
 }
 
 .help {
