@@ -99,7 +99,7 @@ function update(count) {
             location = location.substring(0, location.length - 2);
 
             const marker = L.circleMarker([csvData[i][5], csvData[i][6]], {
-                radius: Math.log(Math.max(csvData[i][colIndex], 5)) * 2,
+                radius: Math.max(Math.cbrt(csvData[i][colIndex], 5) / 2, 3),
                 weight: 1.0,
                 fillOpacity: 0.9,
                 color: 'white',
