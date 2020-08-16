@@ -87,27 +87,32 @@ function update(count) {
     }
 
     for (let i = 1; i < csvData.length; i++) {
-        if (csvData[i][colIndex] <= 0 || csvData[i][5] == "") {
+        let row = csvData[i];
+
+        row[7] = Math.abs(parseInt(row[7]));
+        row[10] = Math.abs(parseInt(row[10]));
+
+        if (row[colIndex] <= 0 || row[5] == "") {
             continue;
         }
         try {
             let location = "";
             for (let j = 1; j < 4; j++) {
-                if (csvData[i][j] != '')
-                    location += csvData[i][j] + ", ";
+                if (row[j] != '')
+                    location += row[j] + ", ";
             }
             location = location.substring(0, location.length - 2);
 
-            const marker = L.circleMarker([csvData[i][5], csvData[i][6]], {
-                radius: Math.max(Math.cbrt(csvData[i][colIndex], 5) / 2, 3),
+            const marker = L.circleMarker([row[5], row[6]], {
+                radius: Math.max(Math.cbrt(row[colIndex], 5) / 2, 3),
                 weight: 1.0,
                 fillOpacity: 0.9,
                 color: 'white',
                 fillColor: '#ee4d5a',
-                activeCases: csvData[i][10],
-                confirmedCases: csvData[i][7],
-                deaths: csvData[i][8],
-                recovered: csvData[i][9],
+                activeCases: row[10],
+                confirmedCases: row[7],
+                deaths: row[8],
+                recovered: row[9],
                 location: location
             })
 

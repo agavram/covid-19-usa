@@ -1,10 +1,14 @@
 function getDate() {
-    var offset = -16;
-    const yesterday = new Date(new Date().getTime() + offset * 3600 * 1000)
-    yesterday.setDate(yesterday.getDate() - 1);
-    let dd = yesterday.getDate();
-    let mm = yesterday.getMonth() + 1;
-    const yyyy = yesterday.getFullYear();
+    let latestDate = new Date();
+
+    var offset = -30;
+    latestDate.setUTCHours(latestDate.getUTCHours() + offset);
+    console.log(latestDate.toUTCString());
+
+    let dd = latestDate.getUTCDate();
+    let mm = latestDate.getUTCMonth() + 1;
+    const yyyy = latestDate.getUTCFullYear();
+
     if (dd < 10) {
         dd = '0' + dd;
     }
