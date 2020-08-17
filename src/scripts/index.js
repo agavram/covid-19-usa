@@ -89,8 +89,8 @@ function update(count) {
     for (let i = 1; i < csvData.length; i++) {
         let row = csvData[i];
 
-        row[7] = Math.abs(parseInt(row[7]));
-        row[10] = Math.abs(parseInt(row[10]));
+        row[7] = Math.abs(row[7]);
+        row[10] = Math.abs(row[10]);
 
         if (row[colIndex] <= 0 || row[5] == "") {
             continue;
@@ -125,10 +125,7 @@ function update(count) {
         } catch (error) {
             // console.log(csvData[i])
         }
-
     }
-
-    map.setZoom();
 }
 
 function generateContent(popup, layer) {
