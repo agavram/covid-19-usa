@@ -127,6 +127,8 @@ function update(count) {
         }
 
     }
+
+    map.setZoom();
 }
 
 function generateContent(popup, layer) {
