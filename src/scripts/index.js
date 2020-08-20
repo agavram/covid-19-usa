@@ -1,4 +1,3 @@
-
 import { parse } from 'papaparse';
 import { getLatestDownloadUrl } from './utils.js';
 
@@ -9,23 +8,23 @@ document.getElementById('toggle-help').addEventListener('click', () => {
     show = !show;
     localStorage.setItem('show', show);
     displayHelp();
-})
+});
 
 document.getElementById('active').addEventListener('click', () => {
-    update('activate')
-})
+    update('activate');
+});
 
 document.getElementById('confirmed').addEventListener('click', () => {
-    update('confirmed')
-})
+    update('confirmed');
+});
 
 
 function displayHelp() {
     let elements = document.getElementsByClassName("help");
     if (show) {
-        document.getElementById("toggle-help").style.transform = "rotate(0deg)"
+        document.getElementById("toggle-help").style.transform = "rotate(0deg)";
     } else {
-        document.getElementById("toggle-help").style.transform = "rotate(180deg)"
+        document.getElementById("toggle-help").style.transform = "rotate(180deg)";
     }
     for (let i = 0; i < elements.length; i++) {
         if (show) {
@@ -63,7 +62,7 @@ var positronLabels = L.tileLayer(
     pane: 'labels'
 }).addTo(map);
 
-let layerGroup = L.layerGroup().addTo(map);
+let markers = L.layerGroup();
 
 let csvData;
 
@@ -75,8 +74,10 @@ parse(getLatestDownloadUrl(), {
     }
 });
 
+let cumulativeScale = 1;
 function update(count) {
-    layerGroup.clearLayers();
+    markers.clearLayers();
+
 
     let colIndex = 10;
 
@@ -92,7 +93,7 @@ function update(count) {
         row[7] = Math.abs(row[7]);
         row[10] = Math.abs(row[10]);
 
-        if (row[colIndex] <= 0 || row[5] == "") {
+        if (row[colIndex] === 0 || !row[5]) {
             continue;
         }
         try {
@@ -103,8 +104,10 @@ function update(count) {
             }
             location = location.substring(0, location.length - 2);
 
-            const marker = L.circleMarker([row[5], row[6]], {
-                radius: Math.max(Math.cbrt(row[colIndex], 5) / 2, 3),
+            const factor = Math.cos(degrees_to_radians(row[5])) / 1;
+
+            const marker = L.circle([row[5], row[6]], {
+                radius: Math.max(Math.sqrt(row[colIndex]), 40) * 300 * cumulativeScale * factor,
                 weight: 1.0,
                 fillOpacity: 0.9,
                 color: 'white',
@@ -113,20 +116,37 @@ function update(count) {
                 confirmedCases: row[7],
                 deaths: row[8],
                 recovered: row[9],
-                location: location
-            })
+                location: location,
+            });
 
             marker.on({
                 mouseover: toolTip,
                 click: popUp
             });
 
-            marker.addTo(layerGroup)
+            marker.addTo(markers);
         } catch (error) {
             // console.log(csvData[i])
         }
     }
+
+    markers.addTo(map);
 }
+
+function degrees_to_radians(degrees) {
+    var pi = Math.PI;
+    return degrees * (pi / 180);
+}
+
+let lastZoom = 5;
+map.on('zoomend', function () {
+    var zoomDiff = ((lastZoom - 2) / (map.getZoom() - 2));
+    cumulativeScale *= zoomDiff;
+    markers.eachLayer(function (marker) {
+        marker.setRadius(marker._mRadius * zoomDiff);
+    });
+    lastZoom = map.getZoom();
+});
 
 function generateContent(popup, layer) {
     return popup.setContent(
@@ -139,7 +159,7 @@ function generateContent(popup, layer) {
 
 function toolTip(e) {
     const layer = e.target;
-    const tooltip = generateContent(L.tooltip(), layer)
+    const tooltip = generateContent(L.tooltip(), layer);
 
     layer.bindTooltip(tooltip, {
         className: 'tooltip',
@@ -153,7 +173,7 @@ function popUp(e) {
     const layer = e.target;
     layer.unbindTooltip();
 
-    const tooltip = generateContent(L.popup(), layer)
+    const tooltip = generateContent(L.popup(), layer);
     layer.bindPopup(tooltip, {
         className: 'popup',
         permanent: true,
