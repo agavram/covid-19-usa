@@ -107,7 +107,7 @@ function update(count) {
             const factor = Math.cos(degrees_to_radians(row[5])) / 1;
 
             const marker = L.circle([row[5], row[6]], {
-                radius: Math.max(Math.sqrt(row[colIndex]), 40) * 300 * cumulativeScale * factor,
+                radius: Math.max(Math.sqrt(row[colIndex]), 20) * 450 * cumulativeScale * factor,
                 weight: 1.0,
                 fillOpacity: 0.9,
                 color: 'white',
