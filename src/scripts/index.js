@@ -140,7 +140,7 @@ function degrees_to_radians(degrees) {
 
 let lastZoom = 5;
 map.on('zoomend', function () {
-    var zoomDiff = ((lastZoom - 2) / (map.getZoom() - 2));
+    var zoomDiff = ((lastZoom - 1) / (map.getZoom() - 1));
     cumulativeScale *= zoomDiff;
     markers.eachLayer(function (marker) {
         marker.setRadius(marker._mRadius * zoomDiff);
