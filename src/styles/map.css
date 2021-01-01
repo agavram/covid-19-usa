@@ -106,9 +106,18 @@ p {
 
 .red {
     color: #e9737d;
-    position: absolute;
-    right: 0;
-    margin-right: 6px;
+    padding-left: 12px;
+}
+
+.open-graph {
+    color: #42BFDD;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.popup-data {
+    display: flex;
+    justify-content: space-between;
 }
 
 .leaflet-popup-content>.red {
@@ -167,4 +176,54 @@ p {
     opacity: 1;
     -webkit-transform: scale(1);
     transform: scale(1);
+}
+
+.leaflet-top, .leaflet-bottom {
+    z-index: 999;
+}
+
+#modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+    transition-property: opacity, visibility;
+}
+
+.modal-content {
+    border-radius: 8px;
+    background-color: #FFF;
+    width: 75%;
+    max-width: 1080px;
+    padding: 20px;
+}
+
+#close-modal {
+    position: relative;
+    float: right;
+    top: -4px;
+    right: -4px;
+    cursor: pointer;
+}
+
+.fade {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.chart-container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    position: relative;
 }

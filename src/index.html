@@ -14,21 +14,32 @@
     <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
         integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
         crossorigin=""></script>
-    <link rel="stylesheet" href="styles/map.css">
-    <script type="text/javascript" src="scripts/utils.js?v=3"></script>
-    <script defer type="text/javascript" src="scripts/index.js?v=3"></script>
-        <!-- Global site tag (gtag.js) - Google Analytics -->
+    <link rel="stylesheet" href="styles/map.css" />
+    <script defer type="text/javascript" src="scripts/index.js"></script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-T9B4YTM55T"></script>
     <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
 
-    gtag('config', 'G-T9B4YTM55T');
+        gtag('config', 'G-T9B4YTM55T');
     </script>
 </head>
 
 <body>
+    <div id="modal" class="fade">
+        <div class="modal-content">
+            <svg id="close-modal" xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor"
+                class="bi bi-x" viewBox="0 0 16 16">
+                <path
+                    d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z" />
+            </svg>
+            <div class="chart-container">
+                <canvas id="chart"></canvas>
+            </div>
+        </div>
+    </div>
     <div id="map">
         <div class="leaflet-top leaflet-right">
             <div class="info leaflet-control">
