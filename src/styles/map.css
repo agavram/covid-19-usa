@@ -214,6 +214,10 @@ p {
     cursor: pointer;
 }
 
+#close-modal svg {
+    pointer-events: none;
+}
+
 .fade {
     opacity: 0;
     visibility: hidden;

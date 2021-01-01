@@ -7,7 +7,6 @@ const baseUrl = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/maste
 displayHelp();
 
 document.getElementById('toggle-help').addEventListener('click', () => {
-    console.log('clicked help');
     show = !show;
     localStorage.setItem('show', show);
     displayHelp();
@@ -24,7 +23,6 @@ document.getElementById('confirmed').addEventListener('click', () => {
 
 function displayHelp() {
     let elements = document.getElementsByClassName("help");
-    console.log(show);
     if (show) {
         document.getElementById("toggle-help").style.transform = "rotate(0deg)";
     } else {
@@ -343,7 +341,6 @@ function generateChart(labels, data, location) {
 }
 
 document.getElementById('modal').addEventListener('click', (e) => {
-    console.log('clicked');
     if (targetId === "modal" || targetId === "close-modal") {
         modal.classList.add("fade");
     }
