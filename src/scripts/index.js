@@ -318,10 +318,15 @@ function generateChart(labels, data, location) {
                 data: data,
                 backgroundColor: "rgba(238, 77, 90, 0.1)",
                 borderColor: "#ee4d5a",
-                pointBackgroundColor: "#F6A2A9"
+                pointBackgroundColor: "#F6A2A9",
+                pointRadius: 0
             }],
         },
         options: {
+            maintainAspectRatio : false,
+            animation: {
+                duration: 0
+            },
             title: {
                 display: true,
                 text: 'Number of Cases in ' + location

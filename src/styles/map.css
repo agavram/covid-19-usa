@@ -225,7 +225,7 @@ p {
 
 .chart-container {
     display: flex;
-    height: 100%;
+    height: 50vh;
     width: 100%;
     align-items: center;
     justify-content: center;
