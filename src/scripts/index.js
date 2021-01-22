@@ -303,6 +303,32 @@ function getLatestDownloadUrl() {
 var ctx = document.getElementById("chart");
 let chart;
 
+Chart.defaults.LineWithLine = Chart.defaults.line;
+Chart.controllers.LineWithLine = Chart.controllers.line.extend({
+   draw: function(ease) {
+      Chart.controllers.line.prototype.draw.call(this, ease);
+
+      if (this.chart.tooltip._active && this.chart.tooltip._active.length) {
+         var activePoint = this.chart.tooltip._active[0],
+             ctx = this.chart.ctx,
+             x = activePoint.tooltipPosition().x,
+             topY = this.chart.legend.bottom,
+             bottomY = this.chart.chartArea.bottom;
+
+         // draw line
+         ctx.save();
+         ctx.beginPath();
+         ctx.setLineDash([5, 3]);
+         ctx.moveTo(x, topY);
+         ctx.lineTo(x, bottomY);
+         ctx.lineWidth = 2;
+         ctx.strokeStyle = '#ee4d5a';
+         ctx.stroke();
+         ctx.restore();
+      }
+   }
+});
+
 function generateChart(labels, data, location) {
     const modal = document.getElementById('modal');
     modal.classList.remove("fade");
@@ -311,7 +337,7 @@ function generateChart(labels, data, location) {
         chart.destroy();
     }
     chart = new Chart(ctx, {
-        type: 'line',
+        type: 'LineWithLine',
         data: {
             labels: labels,
             datasets: [{
@@ -340,18 +366,18 @@ function generateChart(labels, data, location) {
                         beginAtZero: true
                     }
                 }]
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false
             }
         }
     });
 }
 
-document.getElementById('modal').addEventListener('click', (e) => {
+document.getElementById('modal').addEventListener('mouseup', (e) => {
+    let targetId = e.target.id;
     if (targetId === "modal" || targetId === "close-modal") {
         modal.classList.add("fade");
     }
-});
-
-let targetId = "";
-document.getElementById('modal').addEventListener('mousedown', (e) => {
-    targetId = e.target.id;
 });
