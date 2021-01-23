@@ -333,6 +333,28 @@ function generateChart(labels, data, location) {
     const modal = document.getElementById('modal');
     modal.classList.remove("fade");
 
+    let newCases = [];
+    let smoothCases = [];
+
+    for (let i = 0; i < data.length - 1; i++) {
+        newCases.push(Math.max(data[i + 1] - data[i], 0));
+    }
+
+    for (let i = newCases.length - 1; i > 6; i--) {
+        smoothCases.unshift(Math.round(
+            (newCases[i] +
+            newCases[i - 1] +
+            newCases[i - 2] +
+            newCases[i - 3] +
+            newCases[i - 4] +
+            newCases[i - 5] +
+            newCases[i - 6]) / 7)
+        )
+    }
+
+    labels = labels.slice(8);
+    newCases = newCases.slice(7);
+
     if (chart !== undefined) {
         chart.destroy();
     }
@@ -341,11 +363,15 @@ function generateChart(labels, data, location) {
         data: {
             labels: labels,
             datasets: [{
-                data: data,
-                backgroundColor: "rgba(238, 77, 90, 0.1)",
+                data: smoothCases,
+                backgroundColor: "rgba(238, 77, 90, 0)",
                 borderColor: "#ee4d5a",
                 pointBackgroundColor: "#F6A2A9",
                 pointRadius: 0
+            }, {
+                data: newCases,
+                type: "bar",
+                backgroundColor: "rgba(238, 77, 90, 0.3)",
             }],
         },
         options: {
@@ -369,7 +395,10 @@ function generateChart(labels, data, location) {
             },
             tooltips: {
                 mode: 'index',
-                intersect: false
+                intersect: false,
+                filter: function (tooltipItem) {
+                    return tooltipItem.datasetIndex === 0;
+                }
             }
         }
     });
