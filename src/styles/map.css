@@ -261,3 +261,13 @@ p {
     
     transform: rotate(45deg);
 }
+
+#chartjs-tooltip.right::before {
+    top: 0%;
+    left: unset;
+    right: 0%;
+    margin-right: -5px;
+    margin-top: 10px;
+    transform: rotate(225deg);
+    border-color: transparent transparent white white;
+}

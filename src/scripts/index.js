@@ -343,6 +343,7 @@ Chart.Tooltip.positioners.custom = function(elements, position) {
 function generateChart(labels, data, location) {
     const modal = document.getElementById('modal');
     modal.classList.remove("fade");
+    document.getElementById('chartjs-tooltip')?.classList.remove("fade");
 
     let newCases = [];
     let smoothCases = [];
@@ -402,8 +403,17 @@ function generateChart(labels, data, location) {
                 yAxes: [{
                     ticks: {
                         beginAtZero: true
+                    },
+                }],
+                xAxes: [ {
+                    display: true,
+                    type: 'time',
+                    time: {
+                      tooltipFormat: 'll',
+                      unit: 'month',
                     }
-                }]
+                  }
+                ],
             },
             hover: {mode: null},
             tooltips: {
@@ -432,8 +442,6 @@ function generateChart(labels, data, location) {
                         return;
                     }
 
-                    // Set caret Position
-                    tooltipEl.classList.remove('above', 'below', 'no-transform');
                     if (tooltipModel.yAlign) {
                         tooltipEl.classList.add(tooltipModel.yAlign);
                     } else {
@@ -473,12 +481,21 @@ function generateChart(labels, data, location) {
                     // `this` will be the overall tooltip
                     var position = this._chart.canvas.getBoundingClientRect();
 
+                    let left = position.left + window.pageXOffset + tooltipModel.caretX + 12;
+
+                    if (left > window.innerWidth / 2) {
+                        left = left - tooltipModel.width - 16;
+                        tooltipEl.classList.add("right")
+                    } else {
+                        tooltipEl.classList.remove("right")
+                    }
+
                     // tooltipEl.style.transitionDuration = "0.01s"
                     requestAnimationFrame(() => {
                         // Display, position, and set styles for font
                         tooltipEl.style.opacity = 1;
                         tooltipEl.style.position = 'absolute';
-                        tooltipEl.style.left = position.left + window.pageXOffset + tooltipModel.caretX + 12 + 'px';
+                        tooltipEl.style.left = left + 'px';
                         tooltipEl.style.top = position.top + window.pageYOffset + tooltipModel.caretY - 16 + 'px';
                         tooltipEl.style.fontFamily = tooltipModel._bodyFontFamily;
                         tooltipEl.style.fontSize = tooltipModel.bodyFontSize + 'px';
@@ -496,5 +513,6 @@ document.getElementById('modal').addEventListener('mouseup', (e) => {
     let targetId = e.target.id;
     if (targetId === "modal" || targetId === "close-modal") {
         modal.classList.add("fade");
+        document.getElementById('chartjs-tooltip')?.classList.add("fade");
     }
 });
