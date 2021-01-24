@@ -329,16 +329,16 @@ Chart.controllers.LineWithLine = Chart.controllers.line.extend({
     }
 });
 
-Chart.Tooltip.positioners.custom = function(elements, position) {
+Chart.Tooltip.positioners.custom = function (elements, position) {
     if (!elements.length) {
-      return false;
+        return false;
     }
 
     return {
-      x: elements[0]._view.x,
-      y: elements[0]._view.y
-    }
-  }
+        x: elements[0]._view.x,
+        y: elements[0]._view.y
+    };
+};
 
 function generateChart(labels, data, location) {
     const modal = document.getElementById('modal');
@@ -405,17 +405,19 @@ function generateChart(labels, data, location) {
                         beginAtZero: true
                     },
                 }],
-                xAxes: [ {
+                xAxes: [{
                     display: true,
+                    
                     type: 'time',
                     time: {
-                      tooltipFormat: 'll',
-                      unit: 'month',
+                        parser: "MM/DD/YYYY",
+                        tooltipFormat: 'll',
+                        unit: 'month',
                     }
-                  }
+                }
                 ],
             },
-            hover: {mode: null},
+            hover: { mode: null },
             tooltips: {
                 enabled: false,
                 intersect: false,
@@ -481,13 +483,14 @@ function generateChart(labels, data, location) {
                     // `this` will be the overall tooltip
                     var position = this._chart.canvas.getBoundingClientRect();
 
-                    let left = position.left + window.pageXOffset + tooltipModel.caretX + 12;
+                    let left = position.left + window.pageXOffset + tooltipModel.caretX;
 
-                    if (left > window.innerWidth / 2) {
-                        left = left - tooltipModel.width - 16;
-                        tooltipEl.classList.add("right")
+                    if (left - 10 > getWidth() / 2) {
+                        left = left - tooltipEl.getBoundingClientRect().width - 12;
+                        tooltipEl.classList.add("right");
                     } else {
-                        tooltipEl.classList.remove("right")
+                        left += 12;
+                        tooltipEl.classList.remove("right");
                     }
 
                     // tooltipEl.style.transitionDuration = "0.01s"
@@ -507,6 +510,16 @@ function generateChart(labels, data, location) {
             }
         }
     });
+}
+
+function getWidth() {
+    return Math.max(
+        document.body.scrollWidth,
+        document.documentElement.scrollWidth,
+        document.body.offsetWidth,
+        document.documentElement.offsetWidth,
+        document.documentElement.clientWidth
+    );
 }
 
 document.getElementById('modal').addEventListener('mouseup', (e) => {
