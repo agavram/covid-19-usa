@@ -305,29 +305,40 @@ let chart;
 
 Chart.defaults.LineWithLine = Chart.defaults.line;
 Chart.controllers.LineWithLine = Chart.controllers.line.extend({
-   draw: function(ease) {
-      Chart.controllers.line.prototype.draw.call(this, ease);
+    draw: function (ease) {
+        Chart.controllers.line.prototype.draw.call(this, ease);
 
-      if (this.chart.tooltip._active && this.chart.tooltip._active.length) {
-         var activePoint = this.chart.tooltip._active[0],
-             ctx = this.chart.ctx,
-             x = activePoint.tooltipPosition().x,
-             topY = this.chart.legend.bottom,
-             bottomY = this.chart.chartArea.bottom;
+        if (this.chart.tooltip._active && this.chart.tooltip._active.length) {
+            var activePoint = this.chart.tooltip._active[0],
+                ctx = this.chart.ctx,
+                x = activePoint.tooltipPosition().x,
+                topY = this.chart.legend.bottom,
+                bottomY = this.chart.chartArea.bottom;
 
-         // draw line
-         ctx.save();
-         ctx.beginPath();
-         ctx.setLineDash([5, 3]);
-         ctx.moveTo(x, topY);
-         ctx.lineTo(x, bottomY);
-         ctx.lineWidth = 2;
-         ctx.strokeStyle = '#ee4d5a';
-         ctx.stroke();
-         ctx.restore();
-      }
-   }
+            // draw line
+            ctx.save();
+            ctx.beginPath();
+            ctx.setLineDash([5, 3]);
+            ctx.moveTo(x, topY);
+            ctx.lineTo(x, bottomY);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#ee4d5a';
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
 });
+
+Chart.Tooltip.positioners.custom = function(elements, position) {
+    if (!elements.length) {
+      return false;
+    }
+
+    return {
+      x: elements[0]._view.x,
+      y: elements[0]._view.y
+    }
+  }
 
 function generateChart(labels, data, location) {
     const modal = document.getElementById('modal');
@@ -343,13 +354,13 @@ function generateChart(labels, data, location) {
     for (let i = newCases.length - 1; i > 6; i--) {
         smoothCases.unshift(Math.round(
             (newCases[i] +
-            newCases[i - 1] +
-            newCases[i - 2] +
-            newCases[i - 3] +
-            newCases[i - 4] +
-            newCases[i - 5] +
-            newCases[i - 6]) / 7)
-        )
+                newCases[i - 1] +
+                newCases[i - 2] +
+                newCases[i - 3] +
+                newCases[i - 4] +
+                newCases[i - 5] +
+                newCases[i - 6]) / 7)
+        );
     }
 
     labels = labels.slice(8);
@@ -363,6 +374,7 @@ function generateChart(labels, data, location) {
         data: {
             labels: labels,
             datasets: [{
+                label: "New Cases",
                 data: smoothCases,
                 backgroundColor: "rgba(238, 77, 90, 0)",
                 borderColor: "#ee4d5a",
@@ -375,7 +387,7 @@ function generateChart(labels, data, location) {
             }],
         },
         options: {
-            maintainAspectRatio : false,
+            maintainAspectRatio: false,
             animation: {
                 duration: 0
             },
@@ -393,11 +405,87 @@ function generateChart(labels, data, location) {
                     }
                 }]
             },
+            hover: {mode: null},
             tooltips: {
-                mode: 'index',
+                enabled: false,
                 intersect: false,
+                position: "custom",
+                mode: 'index',
                 filter: function (tooltipItem) {
                     return tooltipItem.datasetIndex === 0;
+                },
+                custom: function (tooltipModel) {
+                    // Tooltip Element
+                    var tooltipEl = document.getElementById('chartjs-tooltip');
+
+                    // Create element on first render
+                    if (!tooltipEl) {
+                        tooltipEl = document.createElement('div');
+                        tooltipEl.id = 'chartjs-tooltip';
+                        tooltipEl.innerHTML = '<table></table>';
+                        document.body.appendChild(tooltipEl);
+                    }
+
+                    // Hide if no tooltip
+                    if (tooltipModel.opacity === 0) {
+                        tooltipEl.style.opacity = 0;
+                        return;
+                    }
+
+                    // Set caret Position
+                    tooltipEl.classList.remove('above', 'below', 'no-transform');
+                    if (tooltipModel.yAlign) {
+                        tooltipEl.classList.add(tooltipModel.yAlign);
+                    } else {
+                        tooltipEl.classList.add('no-transform');
+                    }
+
+                    function getBody(bodyItem) {
+                        return bodyItem.lines;
+                    }
+
+                    // Set Text
+                    if (tooltipModel.body) {
+                        var titleLines = tooltipModel.title || [];
+                        var bodyLines = tooltipModel.body.map(getBody);
+
+                        var innerHtml = '<thead>';
+
+                        titleLines.forEach(function (title) {
+                            innerHtml += '<tr><th>' + title + '</th></tr>';
+                        });
+                        innerHtml += '</thead><tbody>';
+
+                        bodyLines.forEach(function (body, i) {
+                            var colors = tooltipModel.labelColors[i];
+                            var style = 'background:' + colors.backgroundColor;
+                            style += '; border-color:' + colors.borderColor;
+                            style += '; border-width: 2px';
+                            var span = '<span style="' + style + '"></span>';
+                            innerHtml += '<tr><td>' + span + body + '</td></tr>';
+                        });
+                        innerHtml += '</tbody>';
+
+                        var tableRoot = tooltipEl.querySelector('table');
+                        tableRoot.innerHTML = innerHtml;
+                    }
+
+                    // `this` will be the overall tooltip
+                    var position = this._chart.canvas.getBoundingClientRect();
+
+                    // tooltipEl.style.transitionDuration = "0.01s"
+                    requestAnimationFrame(() => {
+                        // Display, position, and set styles for font
+                        tooltipEl.style.opacity = 1;
+                        tooltipEl.style.position = 'absolute';
+                        tooltipEl.style.left = position.left + window.pageXOffset + tooltipModel.caretX + 12 + 'px';
+                        tooltipEl.style.top = position.top + window.pageYOffset + tooltipModel.caretY - 16 + 'px';
+                        tooltipEl.style.fontFamily = tooltipModel._bodyFontFamily;
+                        tooltipEl.style.fontSize = tooltipModel.bodyFontSize + 'px';
+                        tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
+                        tooltipEl.style.padding = tooltipModel.yPadding + 'px ' + tooltipModel.xPadding + 'px';
+                        tooltipEl.style.pointerEvents = 'none';
+                    });
                 }
             }
         }
