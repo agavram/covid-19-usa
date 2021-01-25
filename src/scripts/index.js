@@ -380,7 +380,8 @@ function generateChart(labels, data, location) {
                 backgroundColor: "rgba(238, 77, 90, 0)",
                 borderColor: "#ee4d5a",
                 pointBackgroundColor: "#F6A2A9",
-                pointRadius: 0
+                pointRadius: 0,
+                borderWidth: 2
             }, {
                 data: newCases,
                 type: "bar",
@@ -394,7 +395,8 @@ function generateChart(labels, data, location) {
             },
             title: {
                 display: true,
-                text: 'Number of Cases in ' + location
+                text: 'Daily Cases in ' + location,
+                fontSize: 16
             },
             legend: {
                 display: false

@@ -213,6 +213,8 @@ p {
     top: -4px;
     right: -4px;
     cursor: pointer;
+    margin-bottom: -32px;
+    z-index: 1001;
 }
 
 #close-modal svg {
