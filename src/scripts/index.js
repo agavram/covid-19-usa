@@ -401,21 +401,29 @@ function generateChart(labels, data, location) {
             },
             scales: {
                 yAxes: [{
+                    gridLines: {
+                        borderDash: [5, 3],
+                    },
                     ticks: {
                         beginAtZero: true
                     },
                 }],
                 xAxes: [{
+                    gridLines: {
+                        borderDash: [5, 3],
+                    },
                     display: true,
-                    
                     type: 'time',
                     time: {
                         parser: "MM/DD/YYYY",
                         tooltipFormat: 'll',
-                        unit: 'month',
+                        unitStepSize: 30,
+                        displayFormats: {
+                            'day': 'MMMM',
+                         },
+                        unit: 'day',
                     }
-                }
-                ],
+                }],
             },
             hover: { mode: null },
             tooltips: {
