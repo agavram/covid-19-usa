@@ -214,6 +214,7 @@ p {
 
 #close-modal svg {
     pointer-events: none;
+    fill: #555;
 }
 
 .fade {
@@ -270,6 +271,6 @@ p {
 }
 
 .leaflet-control-attribution  {
-    max-width: 384px;
+    max-width: 386px;
     width: calc(100vw - 180px);
 }
