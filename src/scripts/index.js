@@ -370,6 +370,9 @@ function generateChart(labels, data, location) {
     if (chart !== undefined) {
         chart.destroy();
     }
+
+    document.getElementById('center-title').innerText = 'Daily Cases in ' + location;
+
     chart = new Chart(ctx, {
         type: 'LineWithLine',
         data: {
@@ -395,7 +398,7 @@ function generateChart(labels, data, location) {
             },
             title: {
                 display: true,
-                text: 'Daily Cases in ' + location,
+                // text: 'Daily Cases in ' + location,
                 fontSize: 16
             },
             legend: {
@@ -490,7 +493,6 @@ function generateChart(labels, data, location) {
                         tableRoot.innerHTML = innerHtml;
                     }
 
-                    // `this` will be the overall tooltip
                     var position = this._chart.canvas.getBoundingClientRect();
 
                     let left = position.left + window.pageXOffset + tooltipModel.caretX;
@@ -503,7 +505,6 @@ function generateChart(labels, data, location) {
                         tooltipEl.classList.remove("right");
                     }
 
-                    // tooltipEl.style.transitionDuration = "0.01s"
                     requestAnimationFrame(() => {
                         // Display, position, and set styles for font
                         tooltipEl.style.opacity = 1;
@@ -536,6 +537,6 @@ document.getElementById('modal').addEventListener('mouseup', (e) => {
     let targetId = e.target.id;
     if (targetId === "modal" || targetId === "close-modal") {
         modal.classList.add("fade");
-        document.getElementById('chartjs-tooltip')?.classList.add("fade");
+        document.getElementById('chartjs-tooltip')?.remove();
     }
 });
