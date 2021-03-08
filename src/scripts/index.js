@@ -12,14 +12,6 @@ document.getElementById('toggle-help').addEventListener('click', () => {
     displayHelp();
 });
 
-document.getElementById('active').addEventListener('click', () => {
-    update('activate');
-});
-
-document.getElementById('confirmed').addEventListener('click', () => {
-    update('confirmed');
-});
-
 
 function displayHelp() {
     let elements = document.getElementsByClassName("help");
@@ -72,7 +64,7 @@ parse(getLatestDownloadUrl(), {
     download: true,
     complete: function (results) {
         csvData = results.data;
-        update('active');
+        update('confirmed');
     }
 });
 
