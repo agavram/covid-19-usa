@@ -224,6 +224,7 @@ p {
 .fade {
     opacity: 0;
     visibility: hidden;
+    pointer-events: none;
 }
 
 .chart-container {

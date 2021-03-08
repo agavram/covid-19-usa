@@ -168,11 +168,14 @@ function generateContent(layer) {
     temp = L.DomUtil.create('span', 'red', line);
     temp.innerHTML = `${layer.options.confirmedCases}`;
 
-    line = L.DomUtil.create('div', 'popup-data', div);
-    temp = L.DomUtil.create('span', '', line);
-    temp.innerHTML = "Active Cases";
-    temp = L.DomUtil.create('span', 'red', line);
-    temp.innerHTML = `${layer.options.activeCases}`;
+    if (layer.options.activeCases !== 0) {
+        line = L.DomUtil.create('div', 'popup-data', div);
+        temp = L.DomUtil.create('span', '', line);
+        temp.innerHTML = "Active Cases";
+        temp = L.DomUtil.create('span', 'red', line);
+        temp.innerHTML = `${layer.options.activeCases}`;
+    }
+
 
     line = L.DomUtil.create('div', 'popup-data', div);
     temp = L.DomUtil.create('span', '', line);
