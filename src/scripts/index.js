@@ -166,14 +166,14 @@ function generateContent(layer) {
     temp = L.DomUtil.create('span', '', line);
     temp.innerHTML = "Confirmed Cases";
     temp = L.DomUtil.create('span', 'red', line);
-    temp.innerHTML = `${layer.options.confirmedCases}`;
+    temp.innerHTML = `${numberWithCommas(layer.options.confirmedCases)}`;
 
     if (layer.options.activeCases !== 0) {
         line = L.DomUtil.create('div', 'popup-data', div);
         temp = L.DomUtil.create('span', '', line);
         temp.innerHTML = "Active Cases";
         temp = L.DomUtil.create('span', 'red', line);
-        temp.innerHTML = `${layer.options.activeCases}`;
+        temp.innerHTML = `${numberWithCommas(layer.options.activeCases)}`;
     }
 
 
@@ -181,9 +181,13 @@ function generateContent(layer) {
     temp = L.DomUtil.create('span', '', line);
     temp.innerHTML = "Deaths";
     temp = L.DomUtil.create('span', 'red', line);
-    temp.innerHTML = `${layer.options.deaths}`;
+    temp.innerHTML = `${numberWithCommas(layer.options.deaths)}`;
 
     return div;
+}
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 function toolTip(e) {
