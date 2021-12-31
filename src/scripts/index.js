@@ -362,6 +362,7 @@ function generateChart(labels, data, location) {
                 newCases[i - 6]) / 7)
         );
     }
+    const maxSmooth = Math.max(...smoothCases);
 
     labels = labels.slice(8);
     newCases = newCases.slice(7);
@@ -409,7 +410,8 @@ function generateChart(labels, data, location) {
                         borderDash: [5, 3],
                     },
                     ticks: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        max: Math.ceil(maxSmooth / Math.pow(10, Math.floor(Math.log10(maxSmooth)))) * Math.pow(10, Math.floor(Math.log10(maxSmooth))),
                     },
                 }],
                 xAxes: [{
