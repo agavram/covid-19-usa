@@ -1,6 +1,5 @@
 import { parse } from "papaparse";
 import { Chart } from "chart.js";
-import { get } from "lodash";
 require("dotenv").config();
 
 const axios = require("axios").default;
