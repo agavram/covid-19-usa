@@ -1,16 +1,18 @@
 import { parse } from "papaparse";
 import { Chart } from "chart.js";
+import { get } from "lodash";
+require("dotenv").config();
 
 const axios = require("axios").default;
-const ipgeolocationUrl =
-  "https://api.ipgeolocation.io/ipgeo?apiKey=b9cd2d6aed2947269d0aa838497e85aa";
-axios.get(ipgeolocationUrl).then(function (res) {
-  if (res.data.latitude && res.data.longitude) {
+const ipgeolocationUrl = process.env.IP_GEOLOCATION_URL;
+axios
+  .get(ipgeolocationUrl)
+  .then(function (res) {
     main([res.data.latitude, res.data.longitude]);
-  } else {
+  })
+  .catch(function (res) {
     main([39.8283, -98.5795]);
-  }
-});
+  });
 
 function main(latLong) {
   let show = localStorage.getItem("show") != null ? localStorage.getItem("show") == "true" : true;
@@ -45,7 +47,7 @@ function main(latLong) {
     preferCanvas: "true",
     worldCopyJump: "true",
     center: [latLong[0], latLong[1]],
-    zoom: 6,
+    zoom: 5,
   });
 
   L.tileLayer("https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png", {
