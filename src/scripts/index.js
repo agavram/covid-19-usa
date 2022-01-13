@@ -1,6 +1,36 @@
 import { parse } from "papaparse";
-import { Chart } from "chart.js";
-require("dotenv").config();
+import "chartjs-adapter-moment";
+import { Chart, registerables, LineController, Tooltip } from "chart.js";
+Chart.register(...registerables);
+
+class Custom extends LineController {
+  draw(ease) {
+    super.draw(ease);
+
+    // if (this.chart.tooltip._active && this.chart.tooltip._active.length) {
+    //   let activePoint = this.chart.tooltip._active[0];
+    //   let ctx = this.chart.ctx;
+    //   let x = activePoint.tooltipPosition().x;
+    //   let topY = this.chart.legend.bottom;
+    //   let bottomY = this.chart.chartArea.bottom;
+
+    //   // draw line
+    //   ctx.save();
+    //   ctx.beginPath();
+    //   ctx.setLineDash([5, 3]);
+    //   ctx.moveTo(x, topY);
+    //   ctx.lineTo(x, bottomY);
+    //   ctx.lineWidth = 2;
+    //   ctx.strokeStyle = "#ee4d5a";
+    //   ctx.stroke();
+    //   ctx.restore();
+    // }
+  }
+}
+
+Custom.id = "hoverLine";
+Custom.defaults = LineController.defaults;
+Chart.register(Custom);
 
 const axios = require("axios").default;
 const ipgeolocationUrl = process.env.IP_GEOLOCATION_URL;
@@ -10,6 +40,7 @@ axios
     main([res.data.latitude, res.data.longitude]);
   })
   .catch(function (res) {
+    console.log(res);
     main([39.8283, -98.5795]);
   });
 
@@ -324,40 +355,17 @@ function main(latLong) {
   var ctx = document.getElementById("chart");
   let chart;
 
-  Chart.defaults.LineWithLine = Chart.defaults.line;
-  Chart.controllers.LineWithLine = Chart.controllers.line.extend({
-    draw: function (ease) {
-      Chart.controllers.line.prototype.draw.call(this, ease);
+  Tooltip.positioners.myCustomPositioner = function (elements, eventPosition) {
+    // A reference to the tooltip model
+    const tooltip = this;
 
-      if (this.chart.tooltip._active && this.chart.tooltip._active.length) {
-        var activePoint = this.chart.tooltip._active[0],
-          ctx = this.chart.ctx,
-          x = activePoint.tooltipPosition().x,
-          topY = this.chart.legend.bottom,
-          bottomY = this.chart.chartArea.bottom;
-
-        // draw line
-        ctx.save();
-        ctx.beginPath();
-        ctx.setLineDash([5, 3]);
-        ctx.moveTo(x, topY);
-        ctx.lineTo(x, bottomY);
-        ctx.lineWidth = 2;
-        ctx.strokeStyle = "#ee4d5a";
-        ctx.stroke();
-        ctx.restore();
-      }
-    },
-  });
-
-  Chart.Tooltip.positioners.custom = function (elements, position) {
     if (!elements.length) {
       return false;
     }
-
+    // console.log(elements[0]);
     return {
-      x: elements[0]._view.x,
-      y: elements[0]._view.y,
+      x: elements[0].element.x,
+      y: elements[0].element.y,
     };
   };
 
@@ -398,8 +406,9 @@ function main(latLong) {
 
     document.getElementById("center-title").innerText = "Daily Cases in " + location;
 
+    console.log("got here");
     chart = new Chart(ctx, {
-      type: "LineWithLine",
+      type: "hoverLine",
       data: {
         labels: labels,
         datasets: [
@@ -420,6 +429,99 @@ function main(latLong) {
         ],
       },
       options: {
+        plugins: {
+          tooltip: {
+            enabled: false,
+            intersect: false,
+            mode: "index",
+            filter: function (tooltipItem) {
+              return tooltipItem.datasetIndex === 0;
+            },
+            external: function (tooltipModel) {
+              console.log('running');
+              // Tooltip Element
+              var tooltipEl = document.getElementById("chartjs-tooltip");
+  
+              // Create element on first render
+              if (!tooltipEl) {
+                tooltipEl = document.createElement("div");
+                tooltipEl.id = "chartjs-tooltip";
+                tooltipEl.innerHTML = "<table></table>";
+                document.body.appendChild(tooltipEl);
+              }
+  
+              // Hide if no tooltip
+              if (tooltipModel.opacity === 0) {
+                tooltipEl.style.opacity = 0;
+                return;
+              }
+  
+              if (tooltipModel.yAlign) {
+                tooltipEl.classList.add(tooltipModel.yAlign);
+              } else {
+                tooltipEl.classList.add("no-transform");
+              }
+  
+              function getBody(bodyItem) {
+                return bodyItem.lines;
+              }
+  
+              // Set Text
+              if (tooltipModel.body) {
+                var titleLines = tooltipModel.title || [];
+                var bodyLines = tooltipModel.body.map(getBody);
+  
+                var innerHtml = "<thead>";
+  
+                titleLines.forEach(function (title) {
+                  innerHtml += "<tr><th>" + title + "</th></tr>";
+                });
+                innerHtml += "</thead><tbody>";
+  
+                bodyLines.forEach(function (body, i) {
+                  var colors = tooltipModel.labelColors[i];
+                  var style = "background:" + colors.backgroundColor;
+                  style += "; border-color:" + colors.borderColor;
+                  style += "; border-width: 2px";
+                  var span = '<span style="' + style + '"></span>';
+                  innerHtml += "<tr><td>" + span + body + "</td></tr>";
+                });
+                innerHtml += "</tbody>";
+  
+                var tableRoot = tooltipEl.querySelector("table");
+                tableRoot.innerHTML = innerHtml;
+              }
+  
+              var position = this._chart.canvas.getBoundingClientRect();
+  
+              let left = position.left + window.pageXOffset + tooltipModel.caretX;
+  
+              if (left - 10 > getWidth() / 2) {
+                left = left - tooltipEl.getBoundingClientRect().width - 12;
+                tooltipEl.classList.add("right");
+              } else {
+                left += 12;
+                tooltipEl.classList.remove("right");
+              }
+  
+              requestAnimationFrame(() => {
+                // Display, position, and set styles for font
+                tooltipEl.style.opacity = 1;
+                tooltipEl.style.position = "absolute";
+                tooltipEl.style.left = left + "px";
+                tooltipEl.style.top =
+                  position.top + window.pageYOffset + tooltipModel.caretY - 16 + "px";
+                tooltipEl.style.fontFamily = tooltipModel._bodyFontFamily;
+                tooltipEl.style.fontSize = tooltipModel.bodyFontSize + "px";
+                tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
+                tooltipEl.style.padding =
+                  tooltipModel.yPadding + "px " + tooltipModel.xPadding + "px";
+                tooltipEl.style.pointerEvents = "none";
+              });
+            },  
+            position: 'myCustomPositioner'
+          }
+        },
         maintainAspectRatio: false,
         animation: {
           duration: 0,
@@ -433,129 +535,33 @@ function main(latLong) {
           display: false,
         },
         scales: {
-          yAxes: [
-            {
-              gridLines: {
-                borderDash: [5, 3],
-              },
-              ticks: {
-                beginAtZero: true,
-                max:
-                  Math.ceil(maxSmooth / Math.pow(10, Math.floor(Math.log10(maxSmooth)))) *
-                  Math.pow(10, Math.floor(Math.log10(maxSmooth))),
-              },
+          y: {
+            suggestedMax:
+              Math.ceil(maxSmooth / Math.pow(10, Math.floor(Math.log10(maxSmooth)))) *
+              Math.pow(10, Math.floor(Math.log10(maxSmooth))),
+            beginAtZero: true,
+            grid: {
+              borderDash: [5, 3],
             },
-          ],
-          xAxes: [
-            {
-              gridLines: {
-                borderDash: [5, 3],
-              },
-              display: true,
-              type: "time",
-              time: {
-                parser: "MM/DD/YYYY",
-                tooltipFormat: "ll",
-                unitStepSize: 30,
-                displayFormats: {
-                  day: "MMMM",
-                },
-                unit: "day",
-              },
+          },
+          x: {
+            gridLines: {
+              borderDash: [5, 3],
             },
-          ],
+            display: true,
+            type: "time",
+            time: {
+              parser: "MM/DD/YYYY",
+              tooltipFormat: "ll",
+              unitStepSize: 30,
+              displayFormats: {
+                day: "MMMM",
+              },
+              unit: "day",
+            },
+          },
         },
         hover: { mode: null },
-        tooltips: {
-          enabled: false,
-          intersect: false,
-          position: "custom",
-          mode: "index",
-          filter: function (tooltipItem) {
-            return tooltipItem.datasetIndex === 0;
-          },
-          custom: function (tooltipModel) {
-            // Tooltip Element
-            var tooltipEl = document.getElementById("chartjs-tooltip");
-
-            // Create element on first render
-            if (!tooltipEl) {
-              tooltipEl = document.createElement("div");
-              tooltipEl.id = "chartjs-tooltip";
-              tooltipEl.innerHTML = "<table></table>";
-              document.body.appendChild(tooltipEl);
-            }
-
-            // Hide if no tooltip
-            if (tooltipModel.opacity === 0) {
-              tooltipEl.style.opacity = 0;
-              return;
-            }
-
-            if (tooltipModel.yAlign) {
-              tooltipEl.classList.add(tooltipModel.yAlign);
-            } else {
-              tooltipEl.classList.add("no-transform");
-            }
-
-            function getBody(bodyItem) {
-              return bodyItem.lines;
-            }
-
-            // Set Text
-            if (tooltipModel.body) {
-              var titleLines = tooltipModel.title || [];
-              var bodyLines = tooltipModel.body.map(getBody);
-
-              var innerHtml = "<thead>";
-
-              titleLines.forEach(function (title) {
-                innerHtml += "<tr><th>" + title + "</th></tr>";
-              });
-              innerHtml += "</thead><tbody>";
-
-              bodyLines.forEach(function (body, i) {
-                var colors = tooltipModel.labelColors[i];
-                var style = "background:" + colors.backgroundColor;
-                style += "; border-color:" + colors.borderColor;
-                style += "; border-width: 2px";
-                var span = '<span style="' + style + '"></span>';
-                innerHtml += "<tr><td>" + span + body + "</td></tr>";
-              });
-              innerHtml += "</tbody>";
-
-              var tableRoot = tooltipEl.querySelector("table");
-              tableRoot.innerHTML = innerHtml;
-            }
-
-            var position = this._chart.canvas.getBoundingClientRect();
-
-            let left = position.left + window.pageXOffset + tooltipModel.caretX;
-
-            if (left - 10 > getWidth() / 2) {
-              left = left - tooltipEl.getBoundingClientRect().width - 12;
-              tooltipEl.classList.add("right");
-            } else {
-              left += 12;
-              tooltipEl.classList.remove("right");
-            }
-
-            requestAnimationFrame(() => {
-              // Display, position, and set styles for font
-              tooltipEl.style.opacity = 1;
-              tooltipEl.style.position = "absolute";
-              tooltipEl.style.left = left + "px";
-              tooltipEl.style.top =
-                position.top + window.pageYOffset + tooltipModel.caretY - 16 + "px";
-              tooltipEl.style.fontFamily = tooltipModel._bodyFontFamily;
-              tooltipEl.style.fontSize = tooltipModel.bodyFontSize + "px";
-              tooltipEl.style.fontStyle = tooltipModel._bodyFontStyle;
-              tooltipEl.style.padding =
-                tooltipModel.yPadding + "px " + tooltipModel.xPadding + "px";
-              tooltipEl.style.pointerEvents = "none";
-            });
-          },
-        },
       },
     });
   }
