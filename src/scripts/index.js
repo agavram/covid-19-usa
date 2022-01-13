@@ -300,7 +300,7 @@ function main(latLong) {
   function getDate() {
     let latestDate = new Date();
 
-    var offset = -30;
+    var offset = -32;
     latestDate.setUTCHours(latestDate.getUTCHours() + offset);
 
     let dd = latestDate.getUTCDate();
